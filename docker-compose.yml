@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14 # Escolha uma versão específica
+    container_name: spv_database
+    restart: always
+    environment:
+      POSTGRES_USER: usr_teste
+      POSTGRES_PASSWORD: usr_teste_password
+      POSTGRES_DB: spv_db
+    ports:
+      - "5432:5432" # Porta padrão do PostgreSQL
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

@@ -1,0 +1,4 @@
+- Docker compose para criar o banco de dados
+- Script para conectar e atuar no BD
+- main script para organizar a logica
+- separar o modulo para realizar a pesquisa
