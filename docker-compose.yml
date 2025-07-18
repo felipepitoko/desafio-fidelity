@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  postgres:
+  postgres-db:
     image: postgres:14 # Escolha uma versão específica
     container_name: spv_database
     restart: always
@@ -12,7 +12,15 @@ services:
     ports:
       - "5432:5432" # Porta padrão do PostgreSQL
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data  
 
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgres-db
+      
 volumes:
   postgres_data:

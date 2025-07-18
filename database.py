@@ -1,11 +1,16 @@
 import psycopg2
 import sys
-from config import DB_CONFIG # Importa configurações de um arquivo central
+from config import * # Importa configurações de um arquivo central
 
 def get_db_connection():
     """Cria e retorna uma conexão com o banco de dados."""
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
+        conn = psycopg2.connect(
+            host=DB_HOST,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            database=DB_NAME
+        )
         return conn
     except psycopg2.Error as e:
         print(f"Erro ao conectar ao PostgreSQL: {e}")
@@ -49,3 +54,7 @@ def save_result(cod_pesquisa: int, resultado: int):
     cursor.execute("INSERT INTO pesquisa_spv (Cod_Pesquisa, resultado) VALUES (?, ?)", (cod_pesquisa, resultado))
     conn.commit()
     cursor.close()    
+    
+if __name__ == "__main__":
+    # Exemplo de uso
+    print(get_db_connection())
