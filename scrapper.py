@@ -5,10 +5,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
-from config import (
-    EXECUTAVEL, SITE_URL, NADA_CONSTA, CONSTA01, CONSTA02
-)
-
 class Scraper:
     def __init__(self):
         edge_options = Options()

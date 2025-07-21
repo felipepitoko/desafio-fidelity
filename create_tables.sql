@@ -6,6 +6,20 @@ CREATE TABLE estado (
     Nome VARCHAR(255)
 );
 
+CREATE TABLE fornecedor (
+    Cod_Fornecedor SERIAL PRIMARY KEY,
+    Nome VARCHAR(255),
+    Cnpj VARCHAR(20),
+    Telefone VARCHAR(20),
+    Email VARCHAR(255)
+);
+
+CREATE TABLE funcionario (
+    Cod_Funcionario SERIAL PRIMARY KEY,
+    Nome VARCHAR(255),
+    Cpf_funcionario VARCHAR(20)
+);
+
 -- Table: lote
 CREATE TABLE lote (
     Cod_Lote SERIAL PRIMARY KEY,
@@ -53,28 +67,32 @@ CREATE TABLE lote_pesquisa (
     Cod_Lote_Pesquisa SERIAL PRIMARY KEY,
     Cod_Lote INT, -- FK to lote
     Cod_Pesquisa INT, -- FK to pesquisa
-    Cod_Funcionario INT, -- This is likely a FK to a 'funcionario' table not shown
-    Cod_Funcionario_Conclusao INT, -- This is likely a FK to a 'funcionario' table not shown
-    Cod_Fornecedor INT, -- FK to estado (assuming Cod_Fornecedor in estado is a master list of suppliers)
+    Cod_Funcionario INT, -- FK to funcionario
+    Cod_Funcionario_Conclusao INT, -- FK to funcionario
+    Cod_Fornecedor INT, -- FK to fornecedor
     Data_Entrada TIMESTAMP,
     Data_Conclusao TIMESTAMP,
     Cod_UF INT, -- FK to estado
     Obs TEXT,
     FOREIGN KEY (Cod_Lote) REFERENCES lote(Cod_Lote),
     FOREIGN KEY (Cod_Pesquisa) REFERENCES pesquisa(cod_pesquisa),
+    FOREIGN KEY (Cod_Funcionario) REFERENCES funcionario(Cod_Funcionario),
+    FOREIGN KEY (Cod_Funcionario_Conclusao) REFERENCES funcionario(Cod_Funcionario),
+    FOREIGN KEY (Cod_Fornecedor) REFERENCES fornecedor(Cod_Fornecedor),
     FOREIGN KEY (Cod_UF) REFERENCES estado(Cod_UF)
-    -- FOREIGN KEY (Cod_Fornecedor) REFERENCES estado(Cod_Fornecedor) -- This FK might be tricky as Cod_Fornecedor in estado is not a PK
 );
 
 -- Table: pesquisa_spv
 CREATE TABLE pesquisa_spv (
-    Cod_pesquisa SERIAL PRIMARY KEY, -- This might be a FK to pesquisa or a separate PK
+    Cod_Pesquisa_SPV SERIAL PRIMARY KEY,
+    Cod_Pesquisa INT, -- This is the Foreign Key to the 'pesquisa' table
     cod_spv VARCHAR(100),
     cod_spv_computador VARCHAR(100),
     cod_spv_tipo VARCHAR(100),
-    cod_funcionario INT, -- This is likely a FK to a 'funcionario' table not shown
+    cod_funcionario INT, -- FK to a 'funcionario' table
     filtro TEXT,
     website_id VARCHAR(255),
-    resultado TEXT
-    -- FOREIGN KEY (Cod_pesquisa) REFERENCES pesquisa(cod_pesquisa) -- If it's a FK
+    resultado TEXT,
+    FOREIGN KEY (Cod_Pesquisa) REFERENCES pesquisa(cod_pesquisa),
+    FOREIGN KEY (cod_funcionario) REFERENCES funcionario(Cod_Funcionario)
 );
