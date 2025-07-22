@@ -5,7 +5,7 @@
 ![Docker](https://img.shields.io/badge/Docker-24.0-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-Uma aplicação robusta para automatizar a consulta de processos judiciais em portais de tribunais, construída com uma arquitetura de microsserviços usando FastAPI, Selenium e PostgreSQL.
+Uma aplicação robusta para automatizar o controle de pesquisas, automatizando o enriquecimento desses dados sob demanda. Construída com uma arquitetura de microsserviços usando FastAPI, Selenium e PostgreSQL.
 
 ---
 
