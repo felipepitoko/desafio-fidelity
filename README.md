@@ -7,6 +7,10 @@
 
 Uma aplicação robusta para fazer o controle de pesquisas, automatizando o enriquecimento desses dados sob demanda. Construída com uma arquitetura de microsserviços usando FastAPI, Selenium e PostgreSQL.
 
+Primeiramente: fiz algumas alterações no modelo de banco de dados apresentado no desafio, como ali dizia que poderia ser feito. O objetivo foi focar no conceito de pesquisa e enriquecimento desses dados, deixando alguns detalhes não totalmente necessários para esse intuito de lado. Inclusive, com a nova estrutura, esses detalhes podem ser adicionados futuramente a estrutura muito facilmente, sem prejuízo nenhum ao funcionamento da aplicação.
+
+Da mesma forma, fiz o scrapper buscar os processos em que o consultado é parte no esaj do TJSP, baseado nos filtros apresentados (RG,CPF e Nome). Isso apenas representa uma forma de enriquecer os dados, podendo ser adicionadas novas pesquisas facilmente na estrutura.
+
 ---
 
 ## 🚀 Funcionalidades Principais
