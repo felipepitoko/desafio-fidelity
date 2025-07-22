@@ -1,0 +1,5 @@
+- Docker compose para criar o banco de dados ok
+- Script para conectar e atuar no BD ok
+- main script para organizar a logica ok
+- separar o modulo para realizar a pesquisa ok
+- API para interargir com o microsserviço ok

@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: tjsp_db
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "${ADMINER_PORT:-8080}:8080"
+    depends_on:
+      - db
+
+  api:
+    container_name: tjsp_api_app
+    build: . # Builds from the Dockerfile in the current directory
+    restart: always
+    ports:
+      - "${API_PORT:-8000}:8000" # Maps host port to container port 8000
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=${DB_SERVICE_HOST:-db} # The service name of the database container
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+
+  worker:
+    container_name: tjsp_scraper_worker
+    build: . # Uses the same image as the api
+    restart: always
+    command: ["python", "worker.py"] # Overrides the default CMD to run the worker script
+    depends_on:
+      - api # Waits for the api to be ready (in a real scenario, use healthchecks)
+      - db
+    environment:
+      - API_URL=${API_URL:-8000}
+      - DB_HOST=${DB_SERVICE_HOST:-db}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - INTERVALO_ENTRE_PROCESSOS=${INTERVALO_ENTRE_PROCESSOS:-60}
+      - MAX_WORKERS=${MAX_WORKERS:-5}
+
+volumes:
+  postgres_data:
