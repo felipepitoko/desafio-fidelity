@@ -1,4 +1,4 @@
-# Robô de Enriquecimento de Dados Judiciais
+# Robô de Enriquecimento de Pesquisas
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.100-green.svg)
