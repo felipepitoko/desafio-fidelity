@@ -1,98 +1,72 @@
+-- Tables are created in an order that respects foreign key dependencies.
+
+-- Table: lote_pesquisa
+-- Stores batch information for searches.
+CREATE TABLE lote_pesquisa (
+    cod_lote SERIAL PRIMARY KEY,
+    prazo_lote TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
 -- Table: estado
+-- Stores state information.
 CREATE TABLE estado (
-    Cod_UF SERIAL PRIMARY KEY,
-    UF VARCHAR(50),
-    Cod_Fornecedor INT,
-    Nome VARCHAR(255)
+    cod_estado SERIAL PRIMARY KEY,
+    nome_estado VARCHAR(100) NOT NULL,
+    sigla_estado VARCHAR(2) NOT NULL
 );
 
-CREATE TABLE fornecedor (
-    Cod_Fornecedor SERIAL PRIMARY KEY,
-    Nome VARCHAR(255),
-    Cnpj VARCHAR(20),
-    Telefone VARCHAR(20),
-    Email VARCHAR(255)
+-- Table: filtro_enriquecimento
+-- Defines the types of search filters available.
+CREATE TABLE filtro_enriquecimento(
+    cod_filtro SERIAL PRIMARY KEY,
+    descricao_filtro VARCHAR(100) NOT NULL,
+    referencia_html_filtro VARCHAR(500) NOT NULL, -- e.g., 'campo_DOCPARTE', 'campo_NMPARTE'
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE funcionario (
-    Cod_Funcionario SERIAL PRIMARY KEY,
-    Nome VARCHAR(255),
-    Cpf_funcionario VARCHAR(20)
-);
-
--- Table: lote
-CREATE TABLE lote (
-    Cod_Lote SERIAL PRIMARY KEY,
-    Cod_Lote_Prazo INT,
-    Data_Criacao DATE,
-    Cod_Funcionario INT, -- This is likely a FK to a 'funcionario' table not shown
-    Tipo VARCHAR(100),
-    Prioridade VARCHAR(50)
-);
-
--- Table: servico
-CREATE TABLE servico (
-    cod_servico SERIAL PRIMARY KEY,
-    civil VARCHAR(255),
-    criminal VARCHAR(255)
+-- Table: tipo_enriquecimento
+-- Defines different types of data enrichment that can be performed.
+-- Depends on 'estado' and 'filtro_enriquecimento'.
+CREATE TABLE tipo_enriquecimento (
+    cod_tipo_enriquecimento SERIAL PRIMARY KEY,
+    descricao_enriquecimento VARCHAR(100) NOT NULL,
+    uf_referencia INTEGER NOT NULL,
+    url_enriquecimento VARCHAR(500) NOT NULL,
+    cod_filtro INTEGER NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (cod_filtro) REFERENCES filtro_enriquecimento(cod_filtro),
+    FOREIGN KEY (uf_referencia) REFERENCES estado(cod_estado)
 );
 
 -- Table: pesquisa
+-- The core table for search requests. Depends on 'lote_pesquisa' and 'estado'.
 CREATE TABLE pesquisa (
     cod_pesquisa SERIAL PRIMARY KEY,
-    cod_cliente INT, -- This is likely a FK to a 'cliente' table not shown
-    cod_uf INT, -- FK to estado
-    cod_servico INT, -- FK to servico
-    tipo VARCHAR(100),
-    cpf VARCHAR(14), -- Assuming standard CPF format 'XXX.XXX.XXX-XX'
-    cod_uf_nascimento INT, -- FK to estado for birthplace UF
-    cod_uf_rg INT, -- FK to estado for RG issuing UF
-    data_entrada TIMESTAMP,
-    data_conclusao TIMESTAMP,
-    nome VARCHAR(255),
-    nome_corrigido VARCHAR(255),
-    rg VARCHAR(20),
-    rg_corrigido VARCHAR(20),
-    mae VARCHAR(255),
-    mae_corrigido VARCHAR(255),
-    anexo TEXT, -- Assuming anexo can be a path or a description
-    FOREIGN KEY (cod_uf) REFERENCES estado(Cod_UF),
-    FOREIGN KEY (cod_servico) REFERENCES servico(cod_servico),
-    FOREIGN KEY (cod_uf_nascimento) REFERENCES estado(Cod_UF),
-    FOREIGN KEY (cod_uf_rg) REFERENCES estado(Cod_UF)
+    cod_lote INTEGER NOT NULL,
+    cpf_consultado VARCHAR(11) NOT NULL,
+    nome_consultado VARCHAR(100) NOT NULL,
+    rg_consultado VARCHAR(11) NOT NULL,
+    uf_rg INTEGER NOT NULL, --FK estado
+    uf_pesquisa INTEGER NOT NULL, --FK estado
+    data_nascimento DATE NOT NULL,
+    data_pesquisa TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (cod_lote) REFERENCES lote_pesquisa(cod_lote),
+    FOREIGN KEY (uf_rg) REFERENCES estado(cod_estado),
+    FOREIGN KEY (uf_pesquisa) REFERENCES estado(cod_estado)
 );
 
--- Table: lote_pesquisa
-CREATE TABLE lote_pesquisa (
-    Cod_Lote_Pesquisa SERIAL PRIMARY KEY,
-    Cod_Lote INT, -- FK to lote
-    Cod_Pesquisa INT, -- FK to pesquisa
-    Cod_Funcionario INT, -- FK to funcionario
-    Cod_Funcionario_Conclusao INT, -- FK to funcionario
-    Cod_Fornecedor INT, -- FK to fornecedor
-    Data_Entrada TIMESTAMP,
-    Data_Conclusao TIMESTAMP,
-    Cod_UF INT, -- FK to estado
-    Obs TEXT,
-    FOREIGN KEY (Cod_Lote) REFERENCES lote(Cod_Lote),
-    FOREIGN KEY (Cod_Pesquisa) REFERENCES pesquisa(cod_pesquisa),
-    FOREIGN KEY (Cod_Funcionario) REFERENCES funcionario(Cod_Funcionario),
-    FOREIGN KEY (Cod_Funcionario_Conclusao) REFERENCES funcionario(Cod_Funcionario),
-    FOREIGN KEY (Cod_Fornecedor) REFERENCES fornecedor(Cod_Fornecedor),
-    FOREIGN KEY (Cod_UF) REFERENCES estado(Cod_UF)
-);
-
--- Table: pesquisa_spv
-CREATE TABLE pesquisa_spv (
-    Cod_Pesquisa_SPV SERIAL PRIMARY KEY,
-    Cod_Pesquisa INT, -- This is the Foreign Key to the 'pesquisa' table
-    cod_spv VARCHAR(100),
-    cod_spv_computador VARCHAR(100),
-    cod_spv_tipo VARCHAR(100),
-    cod_funcionario INT, -- FK to a 'funcionario' table
-    filtro TEXT,
-    website_id VARCHAR(255),
-    resultado TEXT,
-    FOREIGN KEY (Cod_Pesquisa) REFERENCES pesquisa(cod_pesquisa),
-    FOREIGN KEY (cod_funcionario) REFERENCES funcionario(Cod_Funcionario)
+-- Table: log_enriquecimento
+-- Logs the enrichment attempts for each search. Depends on 'pesquisa' and 'tipo_enriquecimento'.
+CREATE TABLE log_enriquecimento (
+    cod_log_enriquecimento SERIAL PRIMARY KEY,
+    cod_pesquisa INTEGER NOT NULL,
+    cod_tipo_enriquecimento INTEGER NOT NULL,
+    status_enriquecimento VARCHAR(100) NOT NULL,
+    enriquecimento_concluido BOOLEAN NOT NULL DEFAULT FALSE,
+    resultado_enriquecimento VARCHAR(500) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (cod_pesquisa) REFERENCES pesquisa(cod_pesquisa),
+    FOREIGN KEY (cod_tipo_enriquecimento) REFERENCES tipo_enriquecimento(cod_tipo_enriquecimento)
 );

@@ -1,4 +1,7 @@
-psycopg2-binary
 selenium
-tqdm
+psycopg2-binary
 python-dotenv
+tqdm
+fastapi
+uvicorn[standard]
+requests
